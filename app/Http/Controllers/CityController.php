@@ -2,19 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\Weather\Cities\CityServiceInterface;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
 
 class CityController extends Controller
 {
     /**
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(CityServiceInterface $service): JsonResponse
     {
-        $data = config('weather.cities');
+        if (config('weather.data_source') === 'DB') {
+            return response()->json($service->getCities());
+        }
 
-        return response()->json($data);
+        return response()->json(config('weather.cities'));
     }
 }

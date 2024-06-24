@@ -2,6 +2,8 @@
 
 namespace App\Services\Weather;
 
+use App\Services\Weather\Cities\CityServiceInterface;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -11,12 +13,20 @@ class OpenWeatherService implements BuildWeatherDataInterface
     /**
      * @inheritDoc
      */
-    public function getWeatherData(Request $request): array
-    {
-        $city = $request->input('city', config('weather.default_city'));
-        $unit = $request->input('unit', config('weather.default_unit'));
+    public function getWeatherData(
+        Request $request,
+        CityServiceInterface $cityService
+    ): array {
+        $city = $request->input('city');
+        if (null === $city) {
+            $city = (config('weather.data_source') === 'DB') ? $cityService->getDefaultCity() : config('weather.default_city');
+        }
 
-        $response = Http::get("https://api.openweathermap.org/data/2.5/weather", [
+        $unit = $request->input('unit') ?? config('weather.default_unit');
+
+        $response = Http::retry(3, 100, function (\Exception $exception){
+            return $exception instanceof ConnectionException;
+        })->get("https://api.openweathermap.org/data/2.5/weather", [
                 'q' => $city,
                 'units' => $unit,
                 'lang' => 'ru',

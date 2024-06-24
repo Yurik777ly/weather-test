@@ -1,16 +1,16 @@
 <template>
     <div class="weather-informer">
         <div class="block-select">
-            <CitySelect v-model="selectedCity" :cities="cities" @change="getWeather" />
+            <CitySelect v-model="selectedCity" :defaultCity="defaultCity" :cities="cities" @change="getWeather" />
 
             <UnitSelect v-model="unit" @change="getWeather"/>
         </div>
         <div class="block-image">
             <div style="display: flex; flex-direction: row;">
                 <div class="image-show"><img v-if="weatherData && weatherData.image" :src=weatherData.image /></div>
-                <div class="temp-show">{{ weatherData.temp }}°</div>
+                <div class="temp-show" v-if="weatherData">{{ temp }}°</div>
             </div>
-            <p class="description-show">{{weatherData.description}}</p>
+            <p class="description-show">{{description}}</p>
         </div>
         <div class="block-data">
             <WeatherDataShow v-if="weatherData" :weather-data="weatherData" :unit="unit" />
@@ -28,38 +28,42 @@ export default {
     data() {
         return {
             cities: [],
-            selectedCity: 'Лондон',
+            selectedCity: '',
             unit: 'metric',
             weatherData: null,
             image: '',
-            description: ''
+            description: '',
+            temp: '',
+            defaultCity: ''
         }
     },
-    mounted() {
-        axios.get('http://localhost:8000/api/cities')
-            .then(response => {
-                this.cities = response.data;
-            })
-            .catch(error => {
-                console.error(error);
-            });
+    beforeMount() {
+        this.getCities();
     },
-    created() {
+    mounted() {
         this.getWeather();
     },
     methods: {
-        getWeather() {
-            axios.get(`http://localhost:8000/api/weather?city=${this.selectedCity}&unit=${this.unit}`)
+        getCities() {
+            axios.get('http://localhost:8000/api/cities')
                 .then(response => {
-                    this.weatherData = response.data;
-                    this.selectedCity = this.weatherData.city;
+                    this.cities = response.data;
                 })
                 .catch(error => {
                     console.error(error);
                 });
         },
-        upperCaseFirst(string) {
-            this.text = string.charAt(0).toUpperCase() + string.slice(1);
+        getWeather() {
+            axios.get(`http://localhost:8000/api/weather?city=${this.selectedCity}&unit=${this.unit}`)
+                .then(response => {
+                    this.weatherData = response.data;
+                    this.defaultCity = this.weatherData.city;
+                    this.temp = this.weatherData.temp;
+                    this.description = this.weatherData.description;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
         },
     }
 }

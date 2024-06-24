@@ -7,12 +7,13 @@
 <script>
 export default {
     props: {
-        cities: Array
+        cities: Array,
+        defaultCity: String
     },
     data() {
         return {
-            selectedCity: 'Лондон'
+            selectedCity: 'Омск'
         }
-    }
+    },
 }
 </script>
