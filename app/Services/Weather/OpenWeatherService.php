@@ -30,7 +30,7 @@ class OpenWeatherService implements BuildWeatherDataInterface
                 'q' => $city,
                 'units' => $unit,
                 'lang' => 'ru',
-                'appid' => '4fe9bac093df272c61b6fa7cfaf67d35'
+                'appid' => config('weather.api_key')
             ]
         );
 
