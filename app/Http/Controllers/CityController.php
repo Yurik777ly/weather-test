@@ -8,14 +8,11 @@ use Illuminate\Http\JsonResponse;
 class CityController extends Controller
 {
     /**
+     * @param CityServiceInterface $service
      * @return JsonResponse
      */
     public function index(CityServiceInterface $service): JsonResponse
     {
-        if (config('weather.data_source') === 'DB') {
-            return response()->json($service->getCities());
-        }
-
-        return response()->json(config('weather.cities'));
+        return response()->json($service->getCities());
     }
 }

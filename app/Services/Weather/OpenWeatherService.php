@@ -3,14 +3,13 @@
 namespace App\Services\Weather;
 
 use App\Services\Weather\Cities\CityServiceInterface;
-use Illuminate\Http\Client\ConnectionException;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
-use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class OpenWeatherService implements BuildWeatherDataInterface
 {
+    public const ERROR_MESSAGE = 'К сожалению, информер не работает по техническим причинам';
 
     /**
      * @inheritDoc
@@ -21,22 +20,27 @@ class OpenWeatherService implements BuildWeatherDataInterface
     ): array {
         $city = $request->input('city');
         if (null === $city) {
-            $city = (config('weather.data_source') === 'DB') ? $cityService->getDefaultCity() : config('weather.default_city');
+            $city = $cityService->getDefaultCity() ?? config('weather.default_city');
         }
 
         $unit = $request->input('unit') ?? config('weather.default_unit');
 
-        $response = Http::get("https://api.openweathermap.org/data/2.5/weather", [
-                'q' => $city,
-                'units' => $unit,
-                'lang' => 'ru',
-                'appid' => config('weather.api_key')
-            ]
-        );
+        try {
+            $response = Http::retry(3, 100)
+                ->get("https://api.openweathermap.org/data/2.5/weather", [
+                    'q' => $city,
+                    'units' => $unit,
+                    'lang' => 'ru',
+                    'appid' => config('weather.api_key')
+                ]
+            );
+        } catch (\Exception $e) {
+            Log::error($e->getMessage());
 
-        $response->throw(function (Response $response, RequestException $e) {
-            return $response->body();
-        });
+            return [
+                'error' => self::ERROR_MESSAGE,
+            ];
+        }
 
         return $this->buildData($response->json());
     }

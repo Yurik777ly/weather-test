@@ -13,12 +13,13 @@
             </div>
         </div>
         <div class="block-image">
-            <div style="display: flex; flex-direction: row;">
+            <div>
                 <div class="image-show"><img v-if="weatherData && weatherData.image" :src=weatherData.image /></div>
                 <div class="temp-show" v-if="weatherData">{{ temp }}°</div>
             </div>
             <p class="description-show">{{description}}</p>
         </div>
+        <div v-if="errorStr" class="message-error">{{errorStr}}</div>
         <div class="block-data">
             <WeatherDataShow v-if="weatherData" :weather-data="weatherData" :unit="unit" />
         </div>
@@ -43,7 +44,8 @@ export default {
             temp: '',
             defaultCity: '',
             showNode1: true,
-            showNode2: false
+            showNode2: false,
+            errorStr: ''
         }
     },
     beforeMount() {
@@ -66,6 +68,9 @@ export default {
             axios.get(`http://localhost:8000/api/weather?city=${this.selectedCity}&unit=${this.unit}`)
                 .then(response => {
                     this.weatherData = response.data;
+                    if ("error" in this.weatherData) {
+                        this.errorStr = this.weatherData.error;
+                    }
                     this.defaultCity = this.weatherData.city;
                     this.temp = this.weatherData.temp;
                     this.description = this.weatherData.description;
@@ -103,6 +108,10 @@ export default {
     text-align: center;
     height: 33%;
 }
+.block-image div {
+    display: flex;
+    flex-direction: row;
+}
 .image-show {
     padding-left: 30%
 }
@@ -133,5 +142,10 @@ export default {
     font-weight: normal;
     color: #ffffff;
     position: relative;
+}
+.message-error {
+    text-align: center;
+    color: #ffffff;
+    font-size: 14px;
 }
 </style>
