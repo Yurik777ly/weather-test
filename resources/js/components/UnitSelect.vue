@@ -1,7 +1,7 @@
 <template>
     <select v-model="unit" id="units">
-        <option value="metric">Celsius</option>
-        <option value="imperial">Fahrenheit</option>
+        <option value="metric">C</option>
+        <option value="imperial">F</option>
     </select>
 </template>
 
@@ -14,3 +14,9 @@ export default {
     }
 }
 </script>
+<style>
+#units {
+    background: cornflowerblue;
+    color: #ffffff;
+}
+</style>

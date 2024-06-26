@@ -12,6 +12,7 @@ class WeatherController extends Controller
     /**
      * @param Request $request
      * @param BuildWeatherDataInterface $weatherData
+     * @param CityServiceInterface $cityService
      * @return JsonResponse
      */
     public function index(

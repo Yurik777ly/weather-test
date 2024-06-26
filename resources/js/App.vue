@@ -1,9 +1,16 @@
 <template>
     <div class="weather-informer">
         <div class="block-select">
-            <CitySelect v-model="selectedCity" :defaultCity="defaultCity" :cities="cities" @change="getWeather" />
-
-            <UnitSelect v-model="unit" @change="getWeather"/>
+            <div class="block-name-city" v-show="showNode1">
+                <div class="name-city">{{defaultCity}}</div>
+                <button class="button-select-city" @click="toggleNodes">Сменить город</button>
+            </div>
+            <div class="select-city" v-show="showNode2">
+                <CitySelect v-model="selectedCity" :defaultCity="defaultCity" :cities="cities" @change="getWeather" />
+            </div>
+            <div class="select-unit">
+                <UnitSelect v-model="unit" @change="getWeather"/>
+            </div>
         </div>
         <div class="block-image">
             <div style="display: flex; flex-direction: row;">
@@ -34,7 +41,9 @@ export default {
             image: '',
             description: '',
             temp: '',
-            defaultCity: ''
+            defaultCity: '',
+            showNode1: true,
+            showNode2: false
         }
     },
     beforeMount() {
@@ -64,7 +73,13 @@ export default {
                 .catch(error => {
                     console.error(error);
                 });
+            this.showNode1 = true;
+            this.showNode2 = false;
         },
+        toggleNodes() {
+            this.showNode1 = !this.showNode1
+            this.showNode2 = !this.showNode2
+        }
     }
 }
 </script>
@@ -72,7 +87,7 @@ export default {
 .weather-informer {
     width: 600px;
     height: 500px;
-    background-color: #4a5bff;
+    background-color: cornflowerblue;
     margin: 50px 50px;
     display: flex;
     flex-direction: column
@@ -81,25 +96,42 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    padding: 10px 10px
+    padding: 10px 10px;
+    height: 33%;
 }
 .block-image {
-    padding-top: 20%;
-    text-align: center
+    text-align: center;
+    height: 33%;
 }
 .image-show {
     padding-left: 30%
 }
 .temp-show {
-    font-size: 60px;
+    font-size: 88px;
     font-weight: bold;
-    color: #ffffff
+    color: #ffffff;
+    margin-top: -20px;
 }
 .description-show {
     color: #ffffff;
     font-weight: bold
 }
 .block-data {
-    padding: 20% 10px 0 10px
+    padding: 10% 30px 0 30px
+}
+.block-name-city, .select-city, .select-unit {
+    padding: 20px 30px
+}
+.name-city {
+    font-size: 24px;
+    font-weight: normal;
+    color: #ffffff;
+    height: 30px;
+}
+.button-select-city {
+    font-size: 10px;
+    font-weight: normal;
+    color: #ffffff;
+    position: relative;
 }
 </style>
