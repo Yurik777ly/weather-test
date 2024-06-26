@@ -4,7 +4,9 @@ namespace App\Services\Weather;
 
 use App\Services\Weather\Cities\CityServiceInterface;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Request;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
 class OpenWeatherService implements BuildWeatherDataInterface
@@ -24,15 +26,17 @@ class OpenWeatherService implements BuildWeatherDataInterface
 
         $unit = $request->input('unit') ?? config('weather.default_unit');
 
-        $response = Http::retry(3, 100, function (\Exception $exception){
-            return $exception instanceof ConnectionException;
-        })->get("https://api.openweathermap.org/data/2.5/weather", [
+        $response = Http::get("https://api.openweathermap.org/data/2.5/weather", [
                 'q' => $city,
                 'units' => $unit,
                 'lang' => 'ru',
                 'appid' => config('weather.api_key')
             ]
         );
+
+        $response->throw(function (Response $response, RequestException $e) {
+            return $response->body();
+        });
 
         return $this->buildData($response->json());
     }
