@@ -6,7 +6,6 @@ services:
         build:
             context: .
             dockerfile: docker/php/Dockerfile
-        image: php:8.2
         container_name: app
         restart: unless-stopped
         environment:
@@ -23,7 +22,7 @@ services:
         container_name: nginx
         restart: unless-stopped
         ports:
-            - "80:80"
+            - "8080:80"
             - "443:443"
         volumes:
             - ./:/var/www
@@ -36,7 +35,8 @@ services:
     db:
         image: mysql:5.7.22
         volumes:
-            - ./mysql:/var/lib/mysql
+            - ./mysql:/var/lib/mysql:rw
+        user: mysql
         container_name: db
         restart: unless-stopped
         ports:

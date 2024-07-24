@@ -56,7 +56,7 @@ export default {
     },
     methods: {
         getCities() {
-            axios.get('http://localhost/api/cities')
+            axios.get('http://localhost:8080/api/cities')
                 .then(response => {
                     this.cities = response.data;
                 })
@@ -65,7 +65,7 @@ export default {
                 });
         },
         getWeather() {
-            axios.get(`http://localhost/api/weather?city=${this.selectedCity}&unit=${this.unit}`)
+            axios.get(`http://localhost:8080/api/weather?city=${this.selectedCity}&unit=${this.unit}`)
                 .then(response => {
                     this.weatherData = response.data;
                     if ("error" in this.weatherData) {
